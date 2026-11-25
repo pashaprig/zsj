@@ -1,0 +1,79 @@
+{
+  "slug": "_scaffold",
+  "source": "docs/architecture-map.md (mode: greenfield-bootstrap, 2026-11-25)",
+  "smoke_test": "npm run build succeeds; the built app boots and GET /uk and /ru return 200 while / redirects to /uk; npm test (empty suite + smoke) is green; npm run db:migrate then npm run db:down apply and revert cleanly on PGlite",
+  "tasks": [
+    {
+      "id": "S1",
+      "title": "Create the Next.js (App Router, TypeScript strict, standalone output) app with the module/folder structure and entry point",
+      "layer": "scaffold",
+      "deps": [],
+      "acs": [],
+      "dod": "npm run build succeeds (empty app); package.json pins engines.node >=22 and .nvmrc exists; next.config sets output 'standalone'; src/modules/{issues,search,ingest,auth}/{domain,application,infra}/ exist with an empty public index.ts each; src/shared/{env,errors,ids}/ exist with env validated by zod (fails fast on missing vars) and .env.example listing every var",
+      "files_hint": ["package.json", ".nvmrc", "tsconfig.json", "next.config.ts", "src/app/", "src/modules/", "src/shared/env/", "src/shared/errors/", "src/shared/ids/", ".env.example"]
+    },
+    {
+      "id": "S2",
+      "title": "Wire next-intl locale routing (uk default, ru; prefix always) with placeholder home page and the /admin exclusion",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "GET /uk and /ru each return 200 with a localized title from messages/{uk,ru}.json; GET / redirects to /uk; /admin is not locale-prefixed and renders a placeholder; build stays green",
+      "files_hint": ["src/i18n/", "messages/uk.json", "messages/ru.json", "src/app/[locale]/layout.tsx", "src/app/[locale]/page.tsx", "src/app/admin/layout.tsx", "src/app/admin/page.tsx", "src/proxy.ts"]
+    },
+    {
+      "id": "S3",
+      "title": "Set up Tailwind CSS + shadcn/ui with theme tokens and a first Button primitive used on the home page",
+      "layer": "scaffold",
+      "deps": ["S2"],
+      "acs": [],
+      "dod": "components.json present; src/components/ui/button.tsx exists and is rendered on /uk; theme CSS variables live in src/app/globals.css; build stays green",
+      "files_hint": ["components.json", "src/app/globals.css", "src/components/ui/button.tsx", "src/lib/utils.ts"]
+    },
+    {
+      "id": "S4",
+      "title": "Wire the Vitest harness with the PGlite DB helper, the fake Embedder and the skeleton smoke test",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "npm test runs vitest and is green; tests/smoke.test.ts asserts the app module graph loads (env schema parses a test env, module index.ts barrels import cleanly); tests/helpers/fake-embedder.ts implements the Embedder port deterministically; src/shared/embeddings/ defines the Embedder port",
+      "files_hint": ["vitest.config.ts", "tests/smoke.test.ts", "tests/helpers/db.ts", "tests/helpers/fake-embedder.ts", "src/shared/embeddings/"]
+    },
+    {
+      "id": "S5",
+      "title": "Set up Drizzle + drizzle-kit with the initial migration enabling pgvector, its down pair, and the db scripts",
+      "layer": "scaffold",
+      "deps": ["S4"],
+      "acs": [],
+      "dod": "drizzle.config.ts present; drizzle/0000_init.sql enables CREATE EXTENSION IF NOT EXISTS vector; drizzle/down/0000_init.down.sql reverts it; npm run db:migrate and npm run db:down apply and revert cleanly; tests/helpers/db.ts gives each integration test a fresh PGlite with migrations applied and an integration test proves it (vector extension present)",
+      "files_hint": ["drizzle.config.ts", "drizzle/", "drizzle/down/", "src/shared/db/", "scripts/db-down.ts", "tests/helpers/db.ts", "tests/db.int.test.ts"]
+    },
+    {
+      "id": "S6",
+      "title": "Add ESLint (flat config, typescript-eslint, Next plugin, module-boundary rule) + Prettier + typecheck script",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "npm run lint and npm run typecheck pass clean; a no-restricted-imports rule forbids importing src/modules/*/(domain|application|infra) from outside the module; prettier config + format script present",
+      "files_hint": ["eslint.config.mjs", ".prettierrc", ".prettierignore", "package.json"]
+    },
+    {
+      "id": "S7",
+      "title": "Add the GitHub Actions CI workflow (install, lint, typecheck, test, build)",
+      "layer": "scaffold",
+      "deps": ["S4", "S5", "S6"],
+      "acs": [],
+      "dod": "CI config is valid YAML; it runs on push and pull_request with Node from .nvmrc and runs npm ci, npm run lint, npm run typecheck, npm test, npm run build; the commands match the architecture-map machine keys; no deploy job yet (added after Node on the hosting is confirmed)",
+      "files_hint": [".github/workflows/ci.yml"]
+    },
+    {
+      "id": "S8",
+      "title": "Write CLAUDE.md from the foundation conventions",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "CLAUDE.md reflects docs/architecture-map.md: commands, module layering + public index.ts rule, error envelope, UUIDv7 + slugs, migrations up/down pair, tests (unit/int, PGlite, fake Embedder), i18n (messages files, locale prefix, content language vs UI locale), Tailwind + shadcn reuse rule, secrets via src/shared/env only; links the ADRs",
+      "files_hint": ["CLAUDE.md"]
+    }
+  ]
+}
