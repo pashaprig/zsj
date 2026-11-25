@@ -1,0 +1,89 @@
+---
+status: living
+updated_at: "2026-11-25"
+---
+
+# Roadmap — zsj
+
+> **A decomposition, not a promise.** The overall idea broken into incremental steps: what each
+> step is, where it comes from, how big it is — or that nobody has looked at it yet — and in which
+> order, and parallel lanes, we walk them. **No dates** (except shipped history), **no scores** —
+> order is the prioritization. The *solution* for any step lives in its `docs/features/<slug>/`
+> spec, not here.
+
+## Destination
+
+Readers of ЗСЖ in Ukrainian and Russian browse the cover archive on `zoj.com.ua`, find articles by meaning and follow through to subscription, while the admin adds each new issue themselves and its articles become searchable.
+
+## Steps
+
+| # | Step | Source | Size | Status |
+|---|---|---|:---:|---|
+| 1 | Project skeleton with bilingual layout, language switcher and the Advertising / Subscription info pages (links to external subscription services) — via `/sdd:scaffold` | `docs/architecture-map.md` §Stack; `docs/idea-brief.md` §7 Recommendation | S | idea |
+| 2 | Admin sign-in: one password, session, `/admin` closed to everyone else | `docs/idea-brief.md` §5 Out of scope (password-protected admin) | S | idea |
+| 3 | Admin creates an issue: number, date, language (UA/RU), cover image | `docs/idea-brief.md` §3 Users (Адмін) | S | idea |
+| 4 | Reader browses the cover archive by language and opens an issue page | `docs/idea-brief.md` §7 Recommendation (public part) | S | idea |
+| 5 | Article indexing and semantic search: admin adds an issue's articles (Word or PDF text), they are chunked and embedded; a reader's natural-language query returns excerpt + issue with cover + subscribe call, with the UA→RU fallback rule | `docs/idea-brief.md` §2 Problem; §5 Out of scope (search language rule) | L | idea |
+| 6 | Deploy to `zoj.com.ua`: GitHub Actions builds standalone, applies migrations, ships over SSH, restarts Passenger | `docs/idea-brief.md` §5 Out of scope (domain and hosting); `docs/architecture-map.md` §Constraints & known tech-debt | S | idea |
+
+## Not yet specified
+
+Nothing is in fog: every step can be stated precisely. The unknowns that remain are decisions, listed under Open decisions.
+
+## Out of scope
+
+- Selling or paying for subscriptions on the site — links to external services only (idea brief §5).
+- Public full text of articles — readers see an excerpt and the issue (idea brief §5).
+- Old-site URL migration, redirects, SEO preservation — the new site launches from scratch (idea brief §5).
+- Loading the pre-2026 archive at launch — the admin back-fills it later through step 3 and step 5 (idea brief §5).
+- OCR for image-only PDFs — dropped by the owner: issues without a text layer get their text from Word or a manual paste.
+- Retaining full issue PDFs on the server — text and cover only (architecture map §Constraints).
+
+## Open decisions
+
+| # | Question | Type | Owner | Blocks |
+|---|---|:---:|:---:|:---:|
+| D1 | Do the 2026 issue PDFs carry a text layer (copy text out of 1–2 PDFs)? Decides whether PDF upload is an input path in step 5 or Word/paste only | research | human | 5 |
+| D2 | Does tariff HS-300M run Node.js (cPanel «Setup Node.js App»)? No → the owner moves hosting before step 6 | research | human | 6 |
+| D3 | Does the admin split an issue into articles by hand, or does the system propose the split? | grilling | human | 5 |
+| D4 | Which numeric success targets (e.g. click-throughs to subscription) should the site measure? | grilling | human | 5 |
+
+## Decisions so far
+
+- Next.js + TypeScript single app, deployed standalone on cPanel Node → [`ADR-0001`](adr/0001-use-nextjs-typescript-single-app.md)
+- Managed PostgreSQL + pgvector via Drizzle → [`ADR-0002`](adr/0002-use-managed-postgres-with-pgvector.md)
+- External embeddings API behind an `Embedder` port → [`ADR-0003`](adr/0003-use-external-embeddings-api-behind-port.md)
+- Feature modules with domain / application / infra → [`ADR-0004`](adr/0004-organize-code-as-feature-modules.md)
+- Locale prefix on every public URL (`/uk`, `/ru`) → [`ADR-0005`](adr/0005-prefix-every-public-url-with-locale.md)
+- Store article text and cover only, no PDFs → [`architecture-map.md` §Constraints](architecture-map.md)
+- Deploy last, the site launches in one go → owner decision in this roadmap pass; brief → [`idea-brief.md` §5](idea-brief.md)
+
+## Dependency graph
+
+```mermaid
+flowchart LR
+  s1["1 · Skeleton + info pages"] -->|module layout, i18n, test harness| s2["2 · Admin sign-in"]
+  s2 -->|admin routes need the auth guard| s3["3 · Admin creates issue"]
+  s3 -->|archive lists issues created here| s4["4 · Cover archive"]
+  s3 -->|articles belong to an issue| s5["5 · Articles + semantic search"]
+  s4 -->|result card reuses the archive's issue card and reads| s5
+  s5 -->|owner: launch in one go after search| s6["6 · Deploy to zoj.com.ua"]
+```
+
+## Execution path
+
+| Wave | Steps | Zone per step (why parallel-safe) | Unlocks |
+|:---:|---|---|---|
+| 1 | 1 | repo root, `src/app/[locale]/` (new), `messages/` (new) | 2 |
+| 2 | 2 | `src/modules/auth/` (new), `src/app/admin/` (new) | 3 |
+| 3 | 3 | `src/modules/issues/` (new), `src/modules/ingest/` (new), `src/app/admin/issues/` (new) | 4 |
+| 4 | 4 | `src/app/[locale]/archive/` (new), `src/components/` (new) | 5 |
+| 5 | 5 | `src/modules/ingest/` (new), `src/modules/search/` (new), `src/shared/embeddings/` (new), `src/app/[locale]/search/` (new) | 6 |
+| 6 | 6 | `.github/workflows/` (new) | — |
+
+The path is a single lane: every step builds on the one before. Parallel lanes would only open if step 4 and step 5 were decoupled (the edge between them is a shared UI card, not data), and that is worth revisiting when step 5 is specified.
+
+## Shipped
+
+| Step | Shipped | Link |
+|---|---|---|
