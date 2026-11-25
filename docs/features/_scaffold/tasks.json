@@ -74,6 +74,15 @@
       "acs": [],
       "dod": "CLAUDE.md reflects docs/architecture-map.md: commands, module layering + public index.ts rule, error envelope, UUIDv7 + slugs, migrations up/down pair, tests (unit/int, PGlite, fake Embedder), i18n (messages files, locale prefix, content language vs UI locale), Tailwind + shadcn reuse rule, secrets via src/shared/env only; links the ADRs",
       "files_hint": ["CLAUDE.md"]
+    },
+    {
+      "id": "S9",
+      "title": "Add the bilingual site layout with language switcher and the Advertising / Subscription info pages (roadmap step 1)",
+      "layer": "scaffold",
+      "deps": ["S2", "S3"],
+      "acs": [],
+      "dod": "/uk and /ru share a layout with header nav and a language switcher that keeps the current path; /{locale}/advertising and /{locale}/subscription return 200 with content from messages/{uk,ru}.json; subscription page links to external subscription services (URLs from messages, placeholders until the owner supplies them); build and tests stay green",
+      "files_hint": ["src/app/[locale]/layout.tsx", "src/components/site-header.tsx", "src/components/language-switcher.tsx", "src/app/[locale]/advertising/page.tsx", "src/app/[locale]/subscription/page.tsx", "messages/uk.json", "messages/ru.json"]
     }
   ]
 }
