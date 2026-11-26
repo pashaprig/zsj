@@ -194,5 +194,5 @@ Counting rules: only wrong attempts made in the last 15 minutes count (a rolling
 
 ## 8. Open questions
 
-- [ ] Does the app on the HS-300M host see each Visitor's real address, or only the host proxy's? Default now: count attempts per address as the app sees it; if every request shows the same address, the pause would hit the Admin too and `design` must pick a different key. — owner: Pavlo, due: before `/sdd:design admin-login` (tied to roadmap D2)
+- [ ] Does the app on the chosen VPS see each Visitor's real address? (The shared HS-300M host was ruled out on 2026-11-26; on a VPS our own nginx sits in front of the app.) Default now: nginx passes the real address and overwrites any address the visitor claims, and the app counts attempts only by that; confirm once the VPS tariff is chosen, in particular that the provider puts no extra proxy in front. — owner: Pavlo, due: before `/sdd:design admin-login` (tied to roadmap D2)
 - [ ] Should the Admin be notified when sign-in attempts are being paused (someone is guessing)? Default now: no notification, only an application-log entry (address + time, kept 30 days). — owner: Pavlo, due: before `/sdd:tasks admin-login`
