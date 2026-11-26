@@ -24,7 +24,7 @@ Readers of ЗСЖ in Ukrainian and Russian browse the cover archive on `zoj.com.
 | 3 | Admin creates an issue: number, date, language (UA/RU), cover image | `docs/idea-brief.md` §3 Users (Адмін) | S | idea |
 | 4 | Reader browses the cover archive by language and opens an issue page | `docs/idea-brief.md` §7 Recommendation (public part) | S | idea |
 | 5 | Article indexing and semantic search: admin adds an issue's articles (Word or PDF text), they are chunked and embedded; a reader's natural-language query returns excerpt + issue with cover + subscribe call, with the UA→RU fallback rule | `docs/idea-brief.md` §2 Problem; §5 Out of scope (search language rule) | L | idea |
-| 6 | Deploy to `zoj.com.ua`: GitHub Actions builds standalone, applies migrations, ships over SSH, restarts Passenger | `docs/idea-brief.md` §5 Out of scope (domain and hosting); `docs/architecture-map.md` §Constraints & known tech-debt | S | idea |
+| 6 | Deploy to `zoj.com.ua`: GitHub Actions builds standalone, applies migrations, ships over SSH, restarts the app's service on the VPS (nginx in front) | `docs/idea-brief.md` §5 Out of scope (domain and hosting); `docs/architecture-map.md` §Constraints & known tech-debt | S | idea |
 
 ## Not yet specified
 
@@ -44,13 +44,13 @@ Nothing is in fog: every step can be stated precisely. The unknowns that remain 
 | # | Question | Type | Owner | Blocks |
 |---|---|:---:|:---:|:---:|
 | D1 | Do the 2026 issue PDFs carry a text layer (copy text out of 1–2 PDFs)? Decides whether PDF upload is an input path in step 5 or Word/paste only | research | human | 5 |
-| D2 | Does tariff HS-300M run Node.js (cPanel «Setup Node.js App»)? No → the owner moves hosting before step 6 | research | human | 6 |
+| D2 | Which webcraft.ua VPS tariff? (HS-300M ruled out 2026-11-26: 300 MB disk; requirements sent to support — 1 vCPU, 1 GB RAM, 10 GB SSD, root SSH) | research | human | 6 |
 | D3 | Does the admin split an issue into articles by hand, or does the system propose the split? | grilling | human | 5 |
 | D4 | Which numeric success targets (e.g. click-throughs to subscription) should the site measure? | grilling | human | 5 |
 
 ## Decisions so far
 
-- Next.js + TypeScript single app, deployed standalone on cPanel Node → [`ADR-0001`](adr/0001-use-nextjs-typescript-single-app.md)
+- Next.js + TypeScript single app, deployed standalone on a VPS (amended 2026-11-26: shared tariff too small) → [`ADR-0001`](adr/0001-use-nextjs-typescript-single-app.md)
 - Managed PostgreSQL + pgvector via Drizzle → [`ADR-0002`](adr/0002-use-managed-postgres-with-pgvector.md)
 - External embeddings API behind an `Embedder` port → [`ADR-0003`](adr/0003-use-external-embeddings-api-behind-port.md)
 - Feature modules with domain / application / infra → [`ADR-0004`](adr/0004-organize-code-as-feature-modules.md)
