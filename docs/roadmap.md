@@ -54,7 +54,7 @@ Nothing is in fog: every step can be stated precisely. The unknowns that remain 
 - Managed PostgreSQL + pgvector via Drizzle → [`ADR-0002`](adr/0002-use-managed-postgres-with-pgvector.md)
 - External embeddings API behind an `Embedder` port → [`ADR-0003`](adr/0003-use-external-embeddings-api-behind-port.md)
 - Feature modules with domain / application / infra → [`ADR-0004`](adr/0004-organize-code-as-feature-modules.md)
-- Locale prefix on every public URL (`/uk`, `/ru`) → [`ADR-0005`](adr/0005-prefix-every-public-url-with-locale.md)
+- Ukrainian URLs without a prefix, Russian under `/ru` (supersedes ADR-0005) → [`ADR-0006`](adr/0006-ukrainian-at-root-russian-under-ru.md)
 - Store article text and cover only, no PDFs → [`architecture-map.md` §Constraints](architecture-map.md)
 - Deploy last, the site launches in one go → owner decision in this roadmap pass; brief → [`idea-brief.md` §5](idea-brief.md)
 

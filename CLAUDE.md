@@ -17,7 +17,7 @@ Every change keeps lint, typecheck, test and build green.
 Next.js (App Router) + TypeScript strict on Node ≥ 22 ([ADR-0001](docs/adr/0001-use-nextjs-typescript-single-app.md)) ·
 PostgreSQL + pgvector via Drizzle ([ADR-0002](docs/adr/0002-use-managed-postgres-with-pgvector.md)) ·
 external embeddings API behind `Embedder` ([ADR-0003](docs/adr/0003-use-external-embeddings-api-behind-port.md)) ·
-next-intl with `/uk`, `/ru` prefixes ([ADR-0005](docs/adr/0005-prefix-every-public-url-with-locale.md)) · Tailwind + shadcn/ui.
+next-intl: Ukrainian without a prefix, Russian under `/ru` ([ADR-0006](docs/adr/0006-ukrainian-at-root-russian-under-ru.md)) · Tailwind + shadcn/ui.
 
 ## Code layout (ADR-0004)
 
@@ -43,7 +43,7 @@ next-intl with `/uk`, `/ru` prefixes ([ADR-0005](docs/adr/0005-prefix-every-publ
 - **Tests:** unit `*.test.ts` beside the code; integration `*.int.test.ts` use `createTestDb()` (`tests/helpers/db.ts`,
   fresh PGlite + pgvector + all migrations). Use `createFakeEmbedder()` — tests never hit the network.
 - **i18n:** UI strings only in `messages/uk.json` + `messages/ru.json` (same keys — the smoke test checks). Use `Link` from
-  `@/i18n/navigation` for public links. Content language (`uk` | `ru`) on issues/articles is data, separate from the UI locale.
+  `@/i18n/navigation` for public links — never hand-prefix a locale. Content language (`uk` | `ru`) on issues/articles is data, separate from the UI locale.
 - **UI:** compose `src/components/ui/*` and Tailwind classes; add primitives via `npx shadcn add <name>`; tokens live in
   `src/app/globals.css`. No second styling approach.
 - **Storage:** keep article text + one cover image per issue; never store full PDFs.
