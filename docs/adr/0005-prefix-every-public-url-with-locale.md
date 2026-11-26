@@ -1,15 +1,15 @@
 ---
-status: Accepted
+status: Superseded
 owner: "Pavlo"
 reviewers: []
-updated_at: "2026-11-25"
+updated_at: "2026-11-26"
 feature_size: "n/a (foundation)"
 ticket: ""
 ---
 
 # 0005 — Prefix every public URL with its locale (`/uk/…`, `/ru/…`), with `/` redirecting to `/uk`
 
-- **Status:** Accepted
+- **Status:** Superseded by [[0006-ukrainian-at-root-russian-under-ru]] (2026-11-26)
 - **Date:** 2026-11-25
 - **Deciders:** Pavlo (owner), survey foundation session
 
