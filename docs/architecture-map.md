@@ -1,7 +1,7 @@
 ---
 status: current
 mode: greenfield-bootstrap   # current (brownfield scan) | greenfield-bootstrap (target foundation)
-updated_at: "2026-11-25"
+updated_at: "2026-11-26"
 reflects_commit: "02dedb2"
 # machine-readable keys — on greenfield they encode the DECIDED toolchain; "" = not yet decided.
 # implement's command-detection cascade reads test_cmd/lint_cmd right after the settings override.
@@ -24,7 +24,7 @@ frontend: "next.js (app router) + tailwind + shadcn/ui"
 
 ## Stack
 
-- Language / runtime: TypeScript (strict) on Node.js ≥ 22 — the exact major is whatever the cPanel Node selector offers, pinned in `package.json` `engines` and `.nvmrc` ([ADR-0001](adr/0001-use-nextjs-typescript-single-app.md))
+- Language / runtime: TypeScript (strict) on Node.js ≥ 22 — Node 22 LTS installed on the VPS, pinned in `package.json` `engines` and `.nvmrc` ([ADR-0001](adr/0001-use-nextjs-typescript-single-app.md))
 - Frameworks: Next.js (App Router, latest stable at scaffold time), `output: 'standalone'` — public pages, the admin UI and server-side logic in one app ([ADR-0001](adr/0001-use-nextjs-typescript-single-app.md))
 - i18n: `next-intl`, locales `uk` (default) and `ru`, prefix on every public URL (`/uk/…`, `/ru/…`) ([ADR-0005](adr/0005-prefix-every-public-url-with-locale.md))
 - Datastore: managed PostgreSQL with the `pgvector` extension (e.g. Neon) ([ADR-0002](adr/0002-use-managed-postgres-with-pgvector.md))
@@ -37,7 +37,7 @@ frontend: "next.js (app router) + tailwind + shadcn/ui"
 - Lint / format: ESLint (flat config, `typescript-eslint`, Next plugin) + Prettier; `tsc --noEmit` as the vet step
 - Package manager: npm
 - Build / test / lint commands: `npm run build` (next build) · `npm test` (vitest run) · `npm run lint` (eslint) · `npm run typecheck` (tsc --noEmit) · `npm run db:generate` / `db:migrate` / `db:down`
-- CI / CD: GitHub Actions (remote `github.com/pashaprig/zsj`) — CI (lint + typecheck + test + build) in the skeleton; the deploy workflow (build standalone → apply migrations → rsync over SSH → Passenger restart) is added once Node on the hosting is confirmed
+- CI / CD: GitHub Actions (remote `github.com/pashaprig/zsj`) — CI (lint + typecheck + test + build) in the skeleton; the deploy workflow (build standalone → apply migrations → rsync over SSH → restart the app's systemd service) is added once the VPS is provisioned
 
 ## C4 — system as it is
 
@@ -48,9 +48,9 @@ C4Container
     title Target containers - zsj (greenfield foundation)
     Person(reader, "Reader", "Browses the cover archive and searches articles in UA or RU")
     Person(admin, "Admin", "Single owner, adds new issues")
-    System_Boundary(hosting, "zoj.com.ua - cPanel shared hosting") {
-        Container(web, "Web app", "Next.js + TypeScript, Node via Passenger", "Public pages, admin UI, server actions. Modules issues, search, ingest, auth")
-        ContainerDb(covers, "Cover store", "Hosting disk, COVERS_DIR", "Cover images - first page of each issue")
+    System_Boundary(hosting, "zoj.com.ua - VPS (webcraft.ua, tariff TBD)") {
+        Container(web, "Web app", "Next.js + TypeScript, Node 22 behind nginx (TLS reverse proxy)", "Public pages, admin UI, server actions. Modules issues, search, ingest, auth")
+        ContainerDb(covers, "Cover store", "VPS disk, COVERS_DIR", "Cover images - first page of each issue")
     }
     ContainerDb(db, "Main DB", "Managed PostgreSQL + pgvector", "Issues, articles, chunks and embeddings")
     System_Ext(embed, "Embeddings API", "Multilingual text embeddings")
@@ -89,7 +89,7 @@ Target paths; scaffold creates the cited files.
 - **Migrations:** drizzle-kit generates forward SQL into `drizzle/NNNN_<name>.sql` (`npm run db:generate`) and applies it with `npm run db:migrate`. drizzle-kit has no down migrations, so every migration gets a hand-written pair `drizzle/down/NNNN_<name>.down.sql`, applied by `npm run db:down`. The first migration enables `CREATE EXTENSION IF NOT EXISTS vector`. Migrations run in CI/CD before deploy, never at app boot.
 - **Tests:** Vitest. Unit tests sit beside the code as `*.test.ts`. Integration tests are `*.int.test.ts` and get a fresh PGlite DB with all migrations applied (helper `tests/helpers/db.ts`). The `Embedder` is replaced by a deterministic fake (`tests/helpers/fake-embedder.ts`), so tests never call the network. The smoke test lives in `tests/smoke.test.ts`.
 - **Inter-module communication:** direct synchronous calls through the other module's `index.ts`. No events or queue: the volume is 12–24 issues a year.
-- **Config / secrets:** every env var is declared and validated once in `src/shared/env/` (zod) and read only through that module. `.env.example` lists them all. Secrets live in cPanel env vars and GitHub Secrets, never in git.
+- **Config / secrets:** every env var is declared and validated once in `src/shared/env/` (zod) and read only through that module. `.env.example` lists them all. Secrets live in an env file on the VPS (outside the deploy dir, readable only by the app's system user) and in GitHub Secrets, never in git.
 - **i18n:** UI strings are only in `messages/uk.json` and `messages/ru.json` (next-intl), with routing config in `src/i18n/`. Content language (`uk` | `ru`) is a field on issues and articles, independent of the UI locale.
 - **UI / styling:** Tailwind utility classes and shadcn/ui primitives from `src/components/ui/`. No second styling approach (no CSS-in-JS, no ad-hoc CSS files beyond `src/app/globals.css`). Details are in §Frontend / UI foundation.
 
@@ -99,7 +99,7 @@ Target paths; scaffold creates the cited files.
 |---|---|---|---|
 | main DB | PostgreSQL + pgvector (managed, e.g. Neon) | Drizzle ORM, only from `src/modules/*/infra/` | issues, articles, article chunks + embeddings. Connection string in `DATABASE_URL` |
 | test DB | PGlite (in-process, `vector` extension) | same Drizzle schema + migrations | fresh per integration test file; never used in production |
-| cover store | hosting disk, directory `COVERS_DIR` outside the deploy dir | `CoverStorage` port in `src/modules/ingest/infra/` | ~100–300 KB per cover, ≤ 48 covers/year; the deploy must not wipe it |
+| cover store | VPS disk, directory `COVERS_DIR` outside the deploy dir | `CoverStorage` port in `src/modules/ingest/infra/` | ~100–300 KB per cover, ≤ 48 covers/year; the deploy must not wipe it |
 
 ## Frontend / UI foundation
 
@@ -122,8 +122,9 @@ Target, created by scaffold. There is no existing UI to reuse yet, so the first 
 
 ## Constraints & known tech-debt
 
-- **Hosting (unverified):** webcraft.ua shared hosting, tariff HS-300M, domain `zoj.com.ua`. The foundation assumes the tariff runs a Node.js app via cPanel «Setup Node.js App» (Passenger). If it doesn't, the owner moves to hosting that runs Node (owner decision 2026-11-25). The code doesn't change, only the deploy workflow does. Verify before writing the deploy workflow.
-- **Memory on shared hosting:** the runtime must stay light. No local ML models (ADR-0003), no in-process vector scans, and no `next build` on the hosting (the build runs in GitHub Actions).
+- **Hosting: VPS (tariff not yet chosen).** webcraft.ua support confirmed (2026-11-26) that shared tariff HS-300M has a 300 MB disk quota — too small for a Node.js/PostgreSQL site — and recommended a VPS. Per the owner decision of 2026-11-25 (move hosting if the tariff can't run the app; ADR-0001 amendment) the app runs on a VPS: Linux, Node 22 LTS as a systemd service behind nginx (TLS via Let's Encrypt, reverse proxy), domain `zoj.com.ua`. Requirements sent to support: 1 vCPU, 1 GB RAM (min 512 MB), 10 GB SSD, root SSH, public IPv4 (IPv6 desirable), unrestricted outbound HTTPS, snapshots/backups. The code doesn't change; only the deploy workflow does. The database stays external (ADR-0002).
+- **nginx is ours:** with no third-party proxy in front, nginx sets the client address the app trusts (it overwrites any client-supplied forwarding header). Rate limits keyed by address (admin-login AC-07) rely on this.
+- **Memory on a small VPS:** the runtime must stay light. No local ML models (ADR-0003), no in-process vector scans, and no `next build` on the server (the build runs in GitHub Actions).
 - **Storage:** article content is stored as text only. The only image kept per issue is the cover (first page). Full issue PDFs are **not** retained (owner decision 2026-11-25). How the admin's PDF yields its text and cover (in-browser pdf.js vs. server-side parsing; OCR if a PDF has no text layer) is a `design` decision for the ingest feature, and `idea-brief.md` §8 still holds the open check on the PDF text layer.
 - **Budget:** extra services ≤ 500–1000 UAH/month. That covers the Neon free or Launch tier and embeddings costs well under $1/year at 12–24 issues/year.
 - **Free-tier DB cold start:** Neon's free tier suspends when idle, so the first query after a pause takes ~0.5–1 s longer. This is acceptable at launch, and the paid tier removes it.
@@ -131,4 +132,4 @@ Target, created by scaffold. There is no existing UI to reuse yet, so the first 
 
 ## Reconciliation with the authored architecture doc
 
-There is no authored architecture doc, so this map is the current reference. The source of intent is `docs/idea-brief.md`. This map resolves its open hosting question by assumption (Node available, confirm before deploy) and its storage risk by owner decision (text + cover only).
+There is no authored architecture doc, so this map is the current reference. The source of intent is `docs/idea-brief.md`. Its open hosting question is answered (2026-11-26: the shared tariff is too small, the app moves to a VPS) and its storage risk by owner decision (text + cover only).
