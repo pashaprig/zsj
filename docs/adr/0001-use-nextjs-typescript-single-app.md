@@ -2,7 +2,7 @@
 status: Accepted
 owner: "Pavlo"
 reviewers: []
-updated_at: "2026-11-25"
+updated_at: "2026-11-26"
 feature_size: "n/a (foundation)"
 ticket: ""
 ---
@@ -51,6 +51,10 @@ Language: **TypeScript** (chosen) vs plain JavaScript.
 **Neutral**
 - If the tariff can't run Node, the same app deploys unchanged to any Node host (a VPS or a Node PaaS) pointed at `zoj.com.ua`. Only the deploy workflow changes.
 - A move away from Next.js later would be a rewrite of `src/app/`, while `src/modules/` (ADR-0004) would survive.
+
+## Amendment 2026-11-26 — runtime host moves to a VPS
+
+webcraft.ua support answered that shared tariff HS-300M has a 300 MB disk quota, too small for a Node.js/PostgreSQL site, and recommended a VPS. This triggers the fallback already recorded under *Neutral* above and the owner decision of 2026-11-25: the same standalone build runs on a VPS (Node 22 LTS as a systemd service behind nginx with TLS) instead of cPanel «Setup Node.js App» / Passenger. The framework choice is unchanged. The Passenger-specific negative consequence (a `server.js` entry, `PORT` / base-path care) no longer applies; the VPS adds OS updates and nginx/TLS upkeep for the owner instead. The tariff is still to be chosen (roadmap D2).
 
 ## Links
 
