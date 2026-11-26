@@ -1,7 +1,7 @@
 {
   "slug": "_scaffold",
   "source": "docs/architecture-map.md (mode: greenfield-bootstrap, 2026-11-25)",
-  "smoke_test": "npm run build succeeds; the built app boots and GET /uk and /ru return 200 while / redirects to /uk; npm test (empty suite + smoke) is green; npm run db:migrate then npm run db:down apply and revert cleanly on PGlite",
+  "smoke_test": "npm run build succeeds; the built app boots and GET / (Ukrainian) and /ru return 200 while /uk redirects to / (ADR-0006, supersedes ADR-0005); npm test (empty suite + smoke) is green; npm run db:migrate then npm run db:down apply and revert cleanly on PGlite",
   "tasks": [
     {
       "id": "S1",
@@ -18,7 +18,7 @@
       "layer": "scaffold",
       "deps": ["S1"],
       "acs": [],
-      "dod": "GET /uk and /ru each return 200 with a localized title from messages/{uk,ru}.json; GET / redirects to /uk; /admin is not locale-prefixed and renders a placeholder; build stays green",
+      "dod": "GET / (Ukrainian, no prefix) and /ru each return 200 with a localized title from messages/{uk,ru}.json; GET /uk redirects to /; no redirect by browser language (ADR-0006); /admin is not locale-prefixed and renders a placeholder; build stays green",
       "files_hint": ["src/i18n/", "messages/uk.json", "messages/ru.json", "src/app/[locale]/layout.tsx", "src/app/[locale]/page.tsx", "src/app/admin/layout.tsx", "src/app/admin/page.tsx", "src/proxy.ts"]
     },
     {
@@ -27,7 +27,7 @@
       "layer": "scaffold",
       "deps": ["S2"],
       "acs": [],
-      "dod": "components.json present; src/components/ui/button.tsx exists and is rendered on /uk; theme CSS variables live in src/app/globals.css; build stays green",
+      "dod": "components.json present; src/components/ui/button.tsx exists and is rendered on /; theme CSS variables live in src/app/globals.css; build stays green",
       "files_hint": ["components.json", "src/app/globals.css", "src/components/ui/button.tsx", "src/lib/utils.ts"]
     },
     {
@@ -81,7 +81,7 @@
       "layer": "scaffold",
       "deps": ["S2", "S3"],
       "acs": [],
-      "dod": "/uk and /ru share a layout with header nav and a language switcher that keeps the current path; /{locale}/advertising and /{locale}/subscription return 200 with content from messages/{uk,ru}.json; subscription page links to external subscription services (URLs from messages, placeholders until the owner supplies them); build and tests stay green",
+      "dod": "/ and /ru share a layout with header nav and a language switcher that keeps the current path; /advertising, /subscription, /ru/advertising and /ru/subscription return 200 with content from messages/{uk,ru}.json; subscription page links to external subscription services (URLs from messages, placeholders until the owner supplies them); build and tests stay green",
       "files_hint": ["src/app/[locale]/layout.tsx", "src/components/site-header.tsx", "src/components/language-switcher.tsx", "src/app/[locale]/advertising/page.tsx", "src/app/[locale]/subscription/page.tsx", "messages/uk.json", "messages/ru.json"]
     }
   ]
