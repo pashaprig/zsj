@@ -1,6 +1,6 @@
 ---
 status: living
-updated_at: "2026-11-25"
+updated_at: "2026-11-26"
 ---
 
 # Roadmap — zsj
@@ -20,7 +20,7 @@ Readers of ЗСЖ in Ukrainian and Russian browse the cover archive on `zoj.com.
 | # | Step | Source | Size | Status |
 |---|---|---|:---:|---|
 | 1 | Project skeleton with bilingual layout, language switcher and the Advertising / Subscription info pages (links to external subscription services) — via `/sdd:scaffold` | `docs/architecture-map.md` §Stack; `docs/idea-brief.md` §7 Recommendation | S | idea |
-| 2 | Admin sign-in: one password, session, `/admin` closed to everyone else | `docs/idea-brief.md` §5 Out of scope (password-protected admin) | S | idea |
+| 2 | Admin sign-in: one password, session, `/admin` closed to everyone else → [`features/admin-login/`](features/admin-login/) | `docs/idea-brief.md` §5 Out of scope (password-protected admin) | S | spec'd |
 | 3 | Admin creates an issue: number, date, language (UA/RU), cover image | `docs/idea-brief.md` §3 Users (Адмін) | S | idea |
 | 4 | Reader browses the cover archive by language and opens an issue page | `docs/idea-brief.md` §7 Recommendation (public part) | S | idea |
 | 5 | Article indexing and semantic search: admin adds an issue's articles (Word or PDF text), they are chunked and embedded; a reader's natural-language query returns excerpt + issue with cover + subscribe call, with the UA→RU fallback rule | `docs/idea-brief.md` §2 Problem; §5 Out of scope (search language rule) | L | idea |
