@@ -46,6 +46,12 @@ describe('skeleton smoke', () => {
     expect(keys(ru).sort()).toEqual(keys(uk).sort());
   });
 
+  it('Ukrainian URLs carry no prefix, Russian ones use /ru, no browser-language redirect (ADR-0006)', () => {
+    expect(routing.defaultLocale).toBe('uk');
+    expect(routing.localePrefix).toBe('as-needed');
+    expect(routing.localeDetection).toBe(false);
+  });
+
   it('fake embedder is deterministic and normalized', async () => {
     const e = createFakeEmbedder(8);
     const [a, b] = await e.embed(['здоров’я', 'здоров’я']);

@@ -4,7 +4,7 @@ import '../globals.css';
 export const metadata: Metadata = { title: 'Адмінка — ЗСЖ', robots: { index: false } };
 
 /**
- * Admin root layout: Ukrainian-only, outside locale routing (ADR-0005).
+ * Admin root layout: Ukrainian-only, outside locale routing (ADR-0006).
  * The auth guard arrives with the admin sign-in feature.
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
