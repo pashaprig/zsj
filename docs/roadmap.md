@@ -21,9 +21,9 @@ Readers of ЗСЖ in Ukrainian and Russian browse the cover archive on `zoj.com.
 |---|---|---|:---:|---|
 | 1 | Project skeleton with bilingual layout, language switcher and the Advertising / Subscription info pages (links to external subscription services) — via `/sdd:scaffold` | `docs/architecture-map.md` §Stack; `docs/idea-brief.md` §7 Recommendation | S | built (scaffold) |
 | 2 | Admin sign-in: one password, session, `/admin` closed to everyone else → [`features/admin-login/`](features/admin-login/) | `docs/idea-brief.md` §5 Out of scope (password-protected admin) | S | spec'd |
-| 3 | Admin creates an issue: number, date, language (UA/RU), cover image | `docs/idea-brief.md` §3 Users (Адмін) | S | idea |
+| 3 | Admin creates an Issue (number, month) and its Language editions (UA, RU), each with its cover image | `docs/idea-brief.md` §3 Users (Адмін) | S | idea |
 | 4 | Reader browses the cover archive by language and opens an issue page | `docs/idea-brief.md` §7 Recommendation (public part) | S | idea |
-| 5 | Article indexing and semantic search: admin adds an issue's articles (Word or PDF text), they are chunked and embedded; a reader's natural-language query returns excerpt + issue with cover + subscribe call, with the UA→RU fallback rule | `docs/idea-brief.md` §2 Problem; §5 Out of scope (search language rule) | L | idea — unblocked (D1, D3 closed) |
+| 5 | Article indexing and semantic search: admin uploads a Language edition's Word file, corrects the proposed split, tags every article and publishes; a reader's natural-language query returns excerpt + issue with cover + subscribe call (UA→RU fallback), each article has a public page with similar articles → [`features/article-search/`](features/article-search/) | `docs/idea-brief.md` §2 Problem; §5 Out of scope (search language rule) | L | spec'd |
 | 6 | Deploy to `zoj.com.ua`: GitHub Actions builds standalone, applies migrations, ships over SSH, restarts the app's service on the VPS (nginx in front) | `docs/idea-brief.md` §5 Out of scope (domain and hosting); `docs/architecture-map.md` §Constraints & known tech-debt | S | idea |
 
 ## Not yet specified
@@ -54,7 +54,8 @@ Nothing is in fog: every step can be stated precisely. The unknowns that remain 
 - Ukrainian URLs without a prefix, Russian under `/ru` (supersedes ADR-0005) → [`ADR-0006`](adr/0006-ukrainian-at-root-russian-under-ru.md)
 - Store article text and cover only, no PDFs → [`architecture-map.md` §Constraints](architecture-map.md)
 - D1 closed 2026-11-27: the 2026 issue PDFs carry a text layer (owner checked) → PDF text is a usable input for step 5
-- D3 closed 2026-11-27: the split into articles comes ready-made — the issue's Word file is already divided into articles and carries a table of contents; the system does not propose a split
+- D3 closed 2026-11-27: the split into articles comes ready-made — the issue's Word file is already divided into articles and carries a table of contents; the system does not propose a split. *Refined 2026-11-27 by the article-search spec: the sample file has no generated table of contents or standard headings, so the site proposes the split from the titles' formatting and the Admin confirms it in a preview.*
+- Full article text is public, no embargo — the Admin times publication (owner, 2026-11-27; supersedes brief §5) → [`article-search spec §1`](features/article-search/spec.md)
 - D4 closed 2026-11-27: no on-site success metrics in scope; the owner adds Google Analytics to the landing later. The product goal stays qualitative — every page and search result should build the reader's wish to subscribe
 - Deploy last, the site launches in one go → owner decision in this roadmap pass; brief → [`idea-brief.md` §5](idea-brief.md)
 
