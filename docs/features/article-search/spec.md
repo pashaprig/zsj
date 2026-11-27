@@ -286,5 +286,5 @@ The owner decided not to measure Reader behaviour on the site (roadmap D4); the 
 
 ## 8. Open questions
 
-- [ ] Where does the Subscribe call lead — which subscription service address(es), the same for both languages? Default now: the site's «Subscription» info page until the Admin names the service (CONTEXT: Subscribe call). — owner: Pavlo, due: before `/sdd:implement article-search`
+- [ ] What is the exact address of the Ukrposhta subscription page the Subscribe call leads to? Decided (owner, 2026-11-27): the Subscribe call leads to Ukrposhta's subscription page for the newspaper; the owner gives the exact address after implementation. Default now: the site's «Subscription» info page until the address is set, and setting it must not need a code change. — owner: Pavlo, due: before roadmap step 6 (deploy)
 - [ ] The «close enough» bar for search results is not known until it is tried on real articles. Default now: tuned on the owner's 20 test questions (§6 Search relevance). — owner: Pavlo, due: before `/sdd:tasks article-search`
