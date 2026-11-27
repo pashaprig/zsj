@@ -23,7 +23,7 @@ Traceability and owner decisions recorded during this specify run:
 - **Decision override: full article text is public** — rationale: owner correction 2026-11-27; supersedes brief §5 «public full text — excluded» and the brief §7 trade-off. The freshest-issue delay is handled by the Admin publishing an issue later, not by the site (owner decision 2026-11-27).
 - **Decision refinement: the split is proposed by the site and confirmed by the Admin** — rationale: the sample edition file has no generated table of contents and no standard headings; titles are marked by ~15 layout styles, some titles span two paragraphs, short letters and poems sit between long articles. Refines roadmap D3 («the Word file is already divided into articles … the system does not propose a split»): the file *is* divided by its titles, but the site must read those titles and the Admin must check the result.
 - **Decision: tags.** Every article carries at least one tag (e.g. «Панкреатит», «ЖКТ»); «Similar articles» are found by shared tags (owner decision 2026-11-27).
-- **Decision: tags are free text with suggestions** — same-language suggestions, letter case and extra spaces ignored, the paper's rubric labels offered as tags, no issue-number tags (owner decision 2026-11-27).
+- **Decision: tags are free text with suggestions** — same-language suggestions, letter case and extra spaces ignored, the paper's rubric labels applied as tags (removable), no issue-number tags (owner decision 2026-11-27; refined by clarify 2026-11-27).
 - **Decision: the search language is the site version's language** — not guessed from the question's letters, because short health queries («тиск», «диабет») are shared by both languages (owner decision 2026-11-27; refines brief §5 «Ukrainian query»).
 - **Decision: letters' personal details** — the Admin may edit an article's text in the preview (e.g. drop a street address) and is responsible for what is published (owner decision 2026-11-27).
 - **Decision: search-engine descriptions per article** — prefilled, editable by the Admin before publishing (owner decision 2026-11-27).
@@ -124,15 +124,17 @@ Traceability and owner decisions recorded during this specify run:
 
 ### AC-03 (US-01) — error (search unavailable)
 
-**Given** search is temporarily unavailable (the paid search service fails or the site's search usage limit is reached)
+**Given** search is temporarily unavailable (the paid search service fails or the site's monthly search limit is reached, §6)
 **When** a Reader searches
 **Then** the Reader is told that search is temporarily unavailable and is offered the issue archive; every other page of the site keeps working
 
 ### AC-03b (US-01) — error (too many searches)
 
-**Given** a Reader has made 20 searches within the last minute from the same address
+**Given** a Reader has made 20 searches within the last minute from the same address (one IPv4 address or one IPv6 home-network block, as in admin-login AC-07)
 **When** the Reader searches again
 **Then** the site does not search and asks the Reader to try again in a minute, while other Readers' searches keep working; the site keeps no record of the Reader's queries
+
+Query rule (all of US-01): the question is part of the results page's address, so a Reader can go back to or share their results; the question itself is never recorded anywhere — not in the site's data, not in a cache, not in the site's or the web server's logs (logs keep the page path without the question).
 
 ### AC-04 (US-02) — happy path (nothing matches)
 
@@ -144,7 +146,7 @@ Traceability and owner decisions recorded during this specify run:
 
 **Given** a Reader searches on the Ukrainian version of the site, and no Ukrainian-edition article matches closely enough, but Russian-edition articles do
 **When** the search completes
-**Then** the Reader sees the matching Russian-edition articles under a notice that nothing was found in Ukrainian and these articles are in Russian; a Reader searching on the Russian version of the site only ever gets Russian-edition articles. The language of a search is the language of the site version the Reader searches on, whatever alphabet the question is typed in
+**Then** the Reader sees the matching Russian-edition articles under a notice that nothing was found in Ukrainian and these articles are in Russian; a Reader searching on the Russian version of the site only ever gets Russian-edition articles. The language of a search is the language of the site version the Reader searches on, whatever alphabet the question is typed in. Opening one of these Russian-edition articles takes the Reader to its one address on the Russian version of the site (AC-18), shown with the Russian site interface
 
 ### AC-06 (US-04) — happy path
 
@@ -162,7 +164,7 @@ Traceability and owner decisions recorded during this specify run:
 
 **Given** a Reader reads an article of the Russian edition of Issue №11 that is tagged «Бронхит»
 **When** the Reader reaches the end of the article
-**Then** the Reader sees the Subscribe call, a «More from this issue» list of the other articles of the same Language edition in the order they appear in the paper, and a «Similar articles» list of up to 5 Russian-edition articles from other issues that share at least one tag, those sharing the most tags first; a list with nothing to show is not displayed
+**Then** the Reader sees the Subscribe call, a «More from this issue» list of the 10 articles that follow this one in the same Language edition in the order they appear in the paper (continuing from the edition's start after its last article) with a «show all» control that expands it to every other article of the edition in paper order, and a «Similar articles» list of up to 5 Russian-edition articles from other issues that share at least one tag, those sharing the most tags first and, among equals, those from newer issues first; a list with nothing to show is not displayed
 
 ### AC-09 (US-05) — domain invariant (one language per page)
 
@@ -174,7 +176,7 @@ Traceability and owner decisions recorded during this specify run:
 
 **Given** the Admin is signed in and Issue №11 exists with its Russian Language edition and cover
 **When** the Admin uploads the Russian edition's Word file
-**Then** the Admin sees a preview of the articles the site found — for each its title, the beginning of its text and its length — in the order of the paper, and nothing is visible to Readers yet
+**Then** the Admin sees a preview of the articles the site found — for each its title, the beginning of its text and its length — in the order of the paper, and nothing is visible to Readers yet. The preview, with its corrections and tags, lasts only for the Admin's current Admin session — it is lost on sign-out or when the session ends; an edition has at most one preview, and uploading another file for it replaces the current preview
 
 ### AC-11 (US-06) — happy path (correct the split)
 
@@ -185,7 +187,7 @@ Traceability and owner decisions recorded during this specify run:
 ### AC-12 (US-06) — error
 
 **Given** the Admin is signed in
-**When** the Admin uploads a file that is not a Word document, cannot be read, is larger than 10 MB, or in which the site finds no article titles
+**When** the Admin uploads a file that is not a Word document in the .docx format (an older .doc, .rtf or .odt file is rejected with a request to re-save it as .docx), cannot be read, is larger than 10 MB, or in which the site finds no article titles
 **Then** the site rejects it, tells the Admin which of these is the reason, and nothing changes in the edition
 
 ### AC-13 (US-07) — domain invariant (every article has a tag)
@@ -198,25 +200,25 @@ Traceability and owner decisions recorded during this specify run:
 
 **Given** the Admin's preview of a Russian edition, where an article carries the rubric label «БРОНХИТ» in the Word file
 **When** the Admin adds tags to the articles
-**Then** the rubric label is already offered as that article's tag to confirm, typing a tag suggests tags already used on Russian-edition articles, and «Бронхит», «БРОНХИТ» and « бронхит » count as the same tag; the issue number is never a tag
+**Then** the rubric label is already that article's tag — it counts for AC-13 without any action, and the Admin can remove or replace it — typing a tag suggests tags already used on Russian-edition articles, and «Бронхит», «БРОНХИТ» and « бронхит » count as the same tag, shown to the Admin in the spelling it was first saved with; the issue number is never a tag. Tags belong to one language (a Russian-edition tag is never matched with a Ukrainian-edition one) and are never shown to Readers — they only drive «Similar articles»
 
 ### AC-14 (US-07) — happy path (publish)
 
 **Given** every article in the preview has at least one tag
 **When** the Admin publishes the edition
-**Then** all its articles become readable, appear in search and in the edition's «More from this issue» lists at the same time, and the Admin sees how many articles were published; if publishing cannot complete, no article of this upload becomes public and the Admin's preview with its corrections and tags is kept to retry
+**Then** all its articles become readable, appear in search and in the edition's «More from this issue» lists at the same time, and the Admin sees how many articles were published; if publishing cannot complete, no article of this upload becomes public and the Admin's preview with its corrections and tags is kept to retry within the same Admin session (AC-10)
 
 ### AC-15 (US-08) — domain invariant (one set of articles per edition)
 
 **Given** the Russian edition of Issue №11 already has 78 published articles
 **When** the Admin uploads a new Word file for the same edition
-**Then** the site warns that publishing will replace those 78 articles, and replaces them only after the Admin confirms at publishing; in the preview each new article is matched to its earlier version (by title and place in the paper) and the Admin can correct the match; a matched article keeps its tags, and if its title — and so its address — changed, its old address forever leads Readers to the new one; old articles with no match are removed (AC-07); no article of the old upload stays in search
+**Then** the site warns that publishing will replace those 78 articles, and replaces them only after the Admin confirms at publishing; in the preview each new article is matched to its earlier version (by title and place in the paper) and the Admin can correct the match; a matched article keeps its tags and its search-engine title and description (AC-19) but takes its title and text from the new file, and the preview marks every matched article whose text differs from the published one so the Admin can re-check it (for example that personal details removed earlier have not come back, AC-11); if its title — and so its address — changed, its old address forever leads Readers to the new one; old articles with no match are removed (AC-07); no article of the old upload stays in search
 
 ### AC-15b (US-08, US-09) — domain invariant (unique addresses)
 
 **Given** two articles of one Language edition have the same title (for example two «БРОНХИТ» letters in the same issue)
 **When** the Admin publishes the edition
-**Then** each article gets its own address, and no address ever leads to two articles or silently switches to a different article
+**Then** each article gets its own address, and no address ever leads to two articles or silently switches to a different article; an address that was ever published is never given to another article — a removed article's address stays «page not found» (AC-07), a renamed article's old address keeps leading to it, and a later article with the same title gets a different address
 
 ### AC-16 (US-06, US-07, US-08) — authorization
 
@@ -234,13 +236,13 @@ Traceability and owner decisions recorded during this specify run:
 
 **Given** a published article
 **When** a Reader copies its address, or a search engine visits the site
-**Then** the address is readable (made of the issue and the article title, never an internal number), opens the same article for anyone who follows it, and article pages are open to search engines while search result pages ask search engines not to list them
+**Then** the article has exactly one public address, on the site version of its Language edition's language (Ukrainian-edition articles on the Ukrainian version, Russian-edition articles on the Russian version); the address is readable — the issue's year and month (as in the archive, e.g. «2026-11») followed by the article title written in Latin letters (transliterated, lower case, words joined by hyphens, cut at a whole word to at most 60 characters), never an internal number — and opens the same article for anyone who follows it, and article pages are open to search engines while search result pages ask search engines not to list them
 
 ### AC-19 (US-10) — happy path (search-engine description)
 
 **Given** the Admin's preview of a Language edition
 **When** the Admin opens an article in the preview
-**Then** the article already has a search-engine title (from its title and the paper's name) and a description (from its first sentences), the Admin can edit both, and once published they are what search engines and link previews show for the article page
+**Then** the article already has a search-engine title (from its title and the paper's name) and a description (from its first sentences), both prefilled within the limits of AC-20 — cut at a whole word, and for the title the paper's name is dropped first — so the site's own prefill never blocks publishing; the Admin can edit both, and once published they are what search engines and link previews show for the article page
 
 ### AC-20 (US-10) — error (description limits)
 
@@ -257,7 +259,7 @@ Traceability and owner decisions recorded during this specify run:
 | Preview of a Language edition after upload | ≤ 30 s for a Word file up to 10 MB | timed on the sample edition file in the integration environment |
 | Publishing an edition (≈80 articles) | ≤ 2 min, without slowing public pages | timed on the sample edition; public page p95 stays within target during it |
 | Search usage limit per address | ≤ 20 searches per minute; beyond it that Reader sees «too many searches — try again in a minute» (AC-03b) | rule checked in tests; the count lives for one minute only and is never stored; the log records only that the limit was hit, without the query |
-| Site-wide search spend | stays within the owner's monthly budget (all services ≤ 1000 UAH/month); when the monthly search limit is reached, search turns «temporarily unavailable» (AC-03) and the rest of the site keeps working | provider usage dashboard, monthly |
+| Site-wide search spend | stays within the owner's monthly budget (all services ≤ 1000 UAH/month); the monthly search limit is a count of Reader searches per calendar month (resets on the 1st), set by the Admin in the server configuration without a code change, default 50 000; when it is reached, search turns «temporarily unavailable» (AC-03) and the rest of the site keeps working; publishing editions does not count toward it and is never blocked by it | provider usage dashboard, monthly; the limit rule checked in tests |
 | Split accuracy | on the sample Russian edition of Issue №11, the site's proposed split matches ≥ 90% of the article titles before Admin corrections | fixture test on the sample file |
 | Search relevance | on an owner-written set of 20 test questions, ≥ 16 have a relevant article among the first 3 results | owner spot-check before launch and after each tuning |
 | Availability | 99% monthly for public pages | uptime check on the VPS |
@@ -265,7 +267,7 @@ Traceability and owner decisions recorded during this specify run:
 ## 6.1 Security / privacy
 
 - **Data classification:** public — published articles, tags and covers are meant for everyone; unpublished previews are internal (Admin area only).
-- **Personal data touched:** article texts include what the paper already prints — readers' and authors' full names, towns, sometimes a full postal address and health details in readers' letters; they become public web pages. The Admin is responsible for what is published and can remove such details from an article's text in the preview before publishing (AC-11). Reader search queries are sensitive (health questions) and are sent to an external service to be understood; the site does not store them with the Reader's address.
+- **Personal data touched:** article texts include what the paper already prints — readers' and authors' full names, towns, sometimes a full postal address and health details in readers' letters; they become public web pages. The Admin is responsible for what is published and can remove such details from an article's text in the preview before publishing (AC-11). Reader search queries are sensitive (health questions) and are sent to an external service to be understood; the site records them nowhere — not in its data, cache or logs, including the web server's access log (AC-03b query rule).
 - **AuthZ/AuthN impact:** upload, preview, split corrections, tagging, publishing and replacing are Admin area actions — each is checked for a valid Admin session (admin-login AC-05, CONTEXT invariant). Search and article pages need no sign-in. Unpublished preview content is never served to Readers.
 - **Abuse cases:**
   - Flooding public search to burn the paid budget or the shared database: a per-address limit (that Reader is asked to try again in a minute, AC-03b) and a site-wide monthly limit (search goes «temporarily unavailable» for everyone, AC-03); the archive and articles keep working.
