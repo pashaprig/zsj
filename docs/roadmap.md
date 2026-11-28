@@ -1,6 +1,6 @@
 ---
 status: living
-updated_at: "2026-11-27"
+updated_at: "2026-11-28"
 ---
 
 # Roadmap — zsj
@@ -21,14 +21,16 @@ Readers of ЗСЖ in Ukrainian and Russian browse the cover archive on `zoj.com.
 |---|---|---|:---:|---|
 | 1 | Project skeleton with bilingual layout, language switcher and the Advertising / Subscription info pages (links to external subscription services) — via `/sdd:scaffold` | `docs/architecture-map.md` §Stack; `docs/idea-brief.md` §7 Recommendation | S | built (scaffold) |
 | 2 | Admin sign-in: one password, session, `/admin` closed to everyone else → [`features/admin-login/`](features/admin-login/) | `docs/idea-brief.md` §5 Out of scope (password-protected admin) | S | spec'd |
-| 3 | Admin creates an Issue (number, month) and its Language editions (UA, RU), each with its cover image | `docs/idea-brief.md` §3 Users (Адмін) | S | idea |
+| 3 | Admin creates an Issue (year + number, double issues «№7–8», no month) and its Language variants (UA, RU — Russian only before 2022), each with its Cover; replaces a Cover; deletes while unpublished → [`features/issue-create/`](features/issue-create/) | `docs/idea-brief.md` §3 Users (Адмін) | M | spec'd |
 | 4 | Reader browses the cover archive by language and opens an issue page | `docs/idea-brief.md` §7 Recommendation (public part) | S | idea |
-| 5 | Article indexing and semantic search: admin uploads a Language edition's Word file, corrects the proposed split, tags every article and publishes; a reader's natural-language query returns excerpt + issue with cover + subscribe call (UA→RU fallback), each article has a public page with similar articles → [`features/article-search/`](features/article-search/) | `docs/idea-brief.md` §2 Problem; §5 Out of scope (search language rule) | L | spec'd |
+| 5 | Article indexing and semantic search: admin uploads a Language variant's Word file, corrects the proposed split, tags every article and publishes; a reader's natural-language query returns excerpt + issue with cover + subscribe call (UA→RU fallback), each article has a public page with similar articles → [`features/article-search/`](features/article-search/) | `docs/idea-brief.md` §2 Problem; §5 Out of scope (search language rule) | L | spec'd |
 | 6 | Deploy to `zoj.com.ua`: GitHub Actions builds standalone, applies migrations, ships over SSH, restarts the app's service on the VPS (nginx in front) | `docs/idea-brief.md` §5 Out of scope (domain and hosting); `docs/architecture-map.md` §Constraints & known tech-debt | S | idea |
 
 ## Not yet specified
 
-Nothing is in fog: every step can be stated precisely. The unknowns that remain are decisions, listed under Open decisions.
+- **The two magazines** that came out alongside the newspaper until certain years (Russian only) — separate Publications with their own Issues and numbering (CONTEXT glossary «Publication»); the owner will describe them when their back-fill starts. Not yet a step.
+
+Everything else can be stated precisely; the remaining unknowns are decisions, listed under Open decisions.
 
 ## Out of scope
 
@@ -57,6 +59,7 @@ Nothing is in fog: every step can be stated precisely. The unknowns that remain 
 - D3 closed 2026-11-27: the split into articles comes ready-made — the issue's Word file is already divided into articles and carries a table of contents; the system does not propose a split. *Refined 2026-11-27 by the article-search spec: the sample file has no generated table of contents or standard headings, so the site proposes the split from the titles' formatting and the Admin confirms it in a preview.*
 - Full article text is public, no embargo — the Admin times publication (owner, 2026-11-27; supersedes brief §5) → [`article-search spec §1`](features/article-search/spec.md)
 - D4 closed 2026-11-27: no on-site success metrics in scope; the owner adds Google Analytics to the landing later. The product goal stays qualitative — every page and search result should build the reader's wish to subscribe
+- Issue identity: year + number (two-digit in addresses, «2026-03», «2026-07-08» for a double issue), no month; Language variants are independent (Russian only before 2022) → [`issue-create spec §1`](features/issue-create/spec.md) (owner, 2026-11-28)
 - Deploy last, the site launches in one go → owner decision in this roadmap pass; brief → [`idea-brief.md` §5](idea-brief.md)
 
 ## Dependency graph
