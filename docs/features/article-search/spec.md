@@ -28,6 +28,7 @@ Traceability and owner decisions recorded during this specify run:
 - **Decision: letters' personal details** — the Admin may edit an article's text in the preview (e.g. drop a street address) and is responsible for what is published (owner decision 2026-11-27).
 - **Decision: search-engine descriptions per article** — prefilled, editable by the Admin before publishing (owner decision 2026-11-27).
 - **Decision: a Subscribe call on the search page too** — once on the results and «nothing found» pages, not on every card (owner decision 2026-11-27, keeps brief §7 / roadmap D4).
+- **Decision: the language switch on an article page** leads to the other language's Archive, never to the same article or Issue in the other variant, and article pages carry no other-language counterpart for search engines — see [cover-archive](../cover-archive/spec.md) AC-09, AC-11 (owner, 2026-11-28).
 - **Decision: Word only.** PDF stays out (owner decision 2026-11-27; D1 — PDFs do carry a text layer, but are not needed).
 
 ## 2. Goals
