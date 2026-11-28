@@ -2,7 +2,7 @@
 status: Draft
 owner: "Pavlo"
 reviewers: ["Tech Lead", "Security Lead"]
-updated_at: "2026-11-26"
+updated_at: "2026-11-28"
 feature_size: "S"
 ---
 
@@ -142,7 +142,7 @@ Counting rules: only wrong attempts made in the last 15 minutes count (a rolling
 
 **Given** the Admin signed in more than 7 days ago in this browser — however recently they used the Admin area since; the 7 days count from sign-in, not from the last activity
 **When** the Admin opens an Admin area page
-**Then** the system shows the sign-in form with a note that the session has expired; after signing in the Admin lands on that page. If the session expired while the Admin was submitting a form (e.g. a new article or cover), nothing is saved, but what the Admin entered is not lost: after signing in they can send it again without retyping it
+**Then** the system shows the sign-in form with a note that the session has expired; after signing in the Admin lands on that page. If the session expired while the Admin was submitting a form (e.g. a new article or cover), nothing is saved, but what the Admin entered is not lost: after signing in they can send it again without retyping it. A file chosen in that form (e.g. a cover picture) is the exception: it must be chosen again, because the site never keeps a file sent without a valid Admin session (issue-create AC-13)
 
 ### AC-10 (US-03) — happy path
 
